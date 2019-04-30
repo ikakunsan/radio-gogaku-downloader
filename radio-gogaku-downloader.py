@@ -46,8 +46,6 @@ class SelectForm(npyscreen.ActionForm):
 if __name__ == '__main__':
     ################################
     urlmusicbase = 'https://nhk-vh.akamaihd.net/i/gogaku-stream/mp4/{}/master.m3u8'
-    includenendo = False
-
     ################################
 
     parser = argparse.ArgumentParser(description='NHK radio gogaku streaming downloader')
@@ -62,20 +60,18 @@ if __name__ == '__main__':
 
     # Try to read courses-selected.json file
     # Try to extract JSON file
-    noselectedjson = False
-    try:
+    if path.exists('courses-selected.json'):
         filesel = open('courses-selected.json', 'r')
         jsonsel = json.load(filesel)
         crssel = jsonsel['course']
         crsselnum = []
         for i in range(len(crssel)):
             crsselnum.append(int(crssel[i]['num']))
-    except:
-        noselectedjson = True
-
+    else:
+        crsselnum = []
 
     # If selected json not exist or course select option then open selection menu
-    if noselectedjson or args.select:
+    if  args.select or len(crsselnum) == 0:
         try:
             fileall = open('courses-all.json', 'r', encoding='utf-8')
         except:
