@@ -26,10 +26,10 @@ class SelectForm(npyscreen.ActionForm):
         self.parentApp.setNextForm(None)
         selects = self.multiselect.value
         lall = []
-        with open('courses-all.json', mode='r') as fs:
+        with open(pathcourseall, mode='r') as fs:
             for sline in fs:
                 lall.append(sline)
-        with open('courses-selected.json', mode='w') as fd:
+        with open(pathcoursesel, mode='w') as fd:
             for i in range(5):
                 fd.write(lall[i])
             for i in range(len(selects)):
@@ -46,6 +46,8 @@ class SelectForm(npyscreen.ActionForm):
 if __name__ == '__main__':
     ################################
     urlmusicbase = 'https://nhk-vh.akamaihd.net/i/gogaku-stream/mp4/{}/master.m3u8'
+    pathcourseall = 'courses-all.json'
+    pathcoursesel = 'courses-selected.json'
     ################################
 
     parser = argparse.ArgumentParser(description='NHK radio gogaku streaming downloader')
@@ -61,8 +63,10 @@ if __name__ == '__main__':
     # Try to read courses-selected.json file
     # Try to extract JSON file
     currentdir = path.dirname(__file__)
-    if path.exists(currentdir + '/' + 'courses-selected.json'):
-        filesel = open(currentdir + '/' + 'courses-selected.json', 'r')
+    pathcourseall = currentdir + '/' + pathcourseall
+    pathcoursesel = currentdir + '/' + pathcoursesel
+    if path.exists(pathcoursesel):
+        filesel = open(pathcoursesel, 'r')
         jsonsel = json.load(filesel)
         crssel = jsonsel['course']
         crsselnum = []
@@ -74,7 +78,7 @@ if __name__ == '__main__':
     # If selected json not exist or course select option then open selection menu
     if  args.select or len(crsselnum) == 0:
         try:
-            fileall = open(currentdir + '/' + 'courses-all.json', 'r', \
+            fileall = open(pathcourseall, 'r', \
                     encoding='utf-8')
         except:
             print('[ERROR] courses-all.json not found.')
