@@ -60,8 +60,9 @@ if __name__ == '__main__':
 
     # Try to read courses-selected.json file
     # Try to extract JSON file
-    if path.exists('courses-selected.json'):
-        filesel = open('courses-selected.json', 'r')
+    currentdir = path.dirname(__file__)
+    if path.exists(currentdir + '/' + 'courses-selected.json'):
+        filesel = open(currentdir + '/' + 'courses-selected.json', 'r')
         jsonsel = json.load(filesel)
         crssel = jsonsel['course']
         crsselnum = []
@@ -73,7 +74,8 @@ if __name__ == '__main__':
     # If selected json not exist or course select option then open selection menu
     if  args.select or len(crsselnum) == 0:
         try:
-            fileall = open('courses-all.json', 'r', encoding='utf-8')
+            fileall = open(currentdir + '/' + 'courses-all.json', 'r', \
+                    encoding='utf-8')
         except:
             print('[ERROR] courses-all.json not found.')
             exit(1)
