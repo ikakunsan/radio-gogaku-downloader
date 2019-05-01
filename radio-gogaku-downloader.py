@@ -113,7 +113,12 @@ if __name__ == '__main__':
 
             # print(r.text)
             root = ET.fromstring(urlxml.text)
-            savedirbase = path.abspath(args.dir)
+            try:
+                savedirbase = path.abspath(args.dir)
+            except:
+                print('\n[OPTION ERROR] Please specify target directory with option "-d"\n')
+                exit(1)
+
             for music in root.findall('music'):
                 course_title = music.get('title')
                 hdate = music.get('hdate')
@@ -140,8 +145,8 @@ if __name__ == '__main__':
                     savedir = savedirbase + '/' + nendo
                     savepath = savedir + '/' + course_title + '_' + hdate + '.mp3'
                 else:
-                    print('[OPTION ERROR] Please specify 1~3 for option "-o". \
-                            (Default is same as "-o 1")')
+                    print('\n[OPTION ERROR] Please specify 1~3 for option "-o". \
+                            (Default is same as "-o 1")\n')
                     exit(1)
 
                 # Try to create a directory to store music files
