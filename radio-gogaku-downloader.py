@@ -7,16 +7,17 @@
 #   (2021/03/12) Program source format was changed to JSON from XML (XML will be no longer used from Apr 2021)
 #
 # 2019/05/02    v1.0    Initial
-# 2021/03/18    v2.0    Change program info source from XML to JSON (prep for April)
+# 2021/03/20    v2.0    Change program info source from XML to JSON (prep for April)
 #
-from os import makedirs, path
+#from os import makedirs, path
+from pathlib import Path
 import sys
 import json
 import argparse
 import requests
 import npyscreen
 import ffmpeg
-#import xml.etree.ElementTree as ET
+from distutils.util import strtobool
 
 class SelectApp(npyscreen.StandardApp):
     def onStart(self):
@@ -64,19 +65,23 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NHK radio gogaku streaming downloader')
     parser.add_argument('-s', '--select',  action='store_true', \
                 help='Display a menu to select courses.')
-    parser.add_argument('-d', '--dir', help='Specify directory to store audio files.')
-    parser.add_argument('-o', '--output', default = '1', \
-                help='Output style. OUTPUT should be 1~3 (Default is 1). Please refer to readme for detail.')
+    parser.add_argument('-d', '--dir', \
+                help='Specify directory to store audio files.')
+    parser.add_argument('-o', '--output', default = 1, type = int, \
+                help='Output style. OUTPUT should be 1~4 (Default is 1). Please refer to readme for detail.')
+    parser.add_argument('-y', '--year', default = '1', type = strtobool, \
+                help='Switch to add Year in output file name. 0:without year, 1:with year (Default is 1)')
     parser.add_argument('-f', '--force',  action='store_true', \
                 help='Force overwrite existing files.')
     args = parser.parse_args()
 
     # Try to read courses-selected.json file
     # Try to extract JSON file
-    currentdir = path.dirname(path.abspath(__file__))
-    path_prog_all = currentdir + '/' + path_prog_all
-    path_prog_sel = currentdir + '/' + path_prog_sel
-    if path.exists(path_prog_sel):
+    dir_current = Path(__file__).resolve().parent
+    path_prog_all = dir_current / path_prog_all
+    path_prog_sel = dir_current / path_prog_sel
+    #if path.exists(path_prog_sel):
+    if path_prog_sel.exists():
         file_prog_sel = open(path_prog_sel, 'r')
         json_prog_sel = json.load(file_prog_sel)
         prog_sel = json_prog_sel['programs']
@@ -88,13 +93,12 @@ if __name__ == '__main__':
 
     # If selected json not exist or course select option then open selection menu
     if  args.select or len(prog_sel_num) == 0:
-        print(path_prog_all)
         try:
-            fileall = open(path_prog_all, 'r', encoding='utf-8')
+            file_prog_all = open(path_prog_all, 'r', encoding='utf-8')
         except:
             print('[ERROR] Cannot open {}.'.format(path_prog_all))
             exit(1)
-        json_prog_all = json.load(fileall)
+        json_prog_all = json.load(file_prog_all)
         prog_all = json_prog_all['programs']
         prog_all_title = []
         for i in range(len(prog_all)):
@@ -135,7 +139,7 @@ if __name__ == '__main__':
 
             # Set file output directory
             try:
-                save_dir_base = path.abspath(args.dir)
+                dir_output_base = Path(args.dir).resolve()
             except:
                 print('\n[OPTION ERROR] Please specify target directory with option "-d"\n')
                 exit(1)
@@ -144,38 +148,47 @@ if __name__ == '__main__':
             for i in range(len(json_prog_this_week['main']['detail_list'])):  # Process for each date
                 prog_title = json_prog_this_week['main']['program_name']
                 onair_date = json_prog_this_week['main']['detail_list'][i]['file_list'][0]['aa_vinfo3']
-                onair_date = onair_date[0:4] + '年' + onair_date[4:6] + '月' + onair_date[6:8] + '日放送分'
+                onair_date_mmdd = onair_date[4:6] + '月' + onair_date[6:8] + '日放送分'
+                onair_date = onair_date[0:4] + '年' + onair_date_mmdd
+                if args.year == 0:
+                    onair_date = onair_date_mmdd
 
                 url_music_source = json_prog_this_week['main']['detail_list'][i]['file_list'][0]['file_name']
                 nendo = get_nendo(json_prog_this_week['main']['detail_list'][i]['file_list'][0]['aa_vinfo3'][:8])
 
                 # Default output format
                 #       ({DIR}/{year}/{course title}/{date}.mp3)
-                if args.output == '1':
-                    save_dir = save_dir_base + '/' + nendo + '/' + prog_title
-                    save_path = save_dir + '/' + onair_date + '.mp3'
+                if args.output == 1:
+                    dir_output = dir_output_base / nendo / prog_title
+                    path_output = dir_output / (onair_date + '.mp3')
                 # Output format option-1
                 #       ({DIR}/{year}/{course title}/{course title}_{date}.mp3)
-                elif args.output == '2':
-                    save_dir = save_dir_base + '/' + nendo + '/' + prog_title
-                    save_path = save_dir + '/' + prog_title + '_' + onair_date + '.mp3'
+                elif args.output == 2:
+                    dir_output = dir_output_base / nendo / prog_title
+                    path_output = dir_output / (prog_title + '_' + onair_date + '.mp3')
                 # Output format option-2
                 #       ({DIR}/{year}/{course title}_{date}.mp3)
-                elif args.output == '3':
-                    save_dir = save_dir_base + '/' + nendo
-                    save_path = save_dir + '/' + prog_title + '_' + onair_date + '.mp3'
+                elif args.output == 3:
+                    dir_output = dir_output_base / nendo
+                    path_output = dir_output / (prog_title + '_' + onair_date + '.mp3')
+                # Output format option-3
+                #       ({DIR}/{course title}/{year}/{date}.mp3)
+                elif args.output == 4:
+                    dir_output = dir_output_base / prog_title / nendo
+                    path_output = dir_output / (onair_date + '.mp3')
                 else:
-                    print('\n[OPTION ERROR] Please specify 1~3 for option "-o". \
-                            (Default is same as "-o 1")\n')
+                    print('\n[OPTION ERROR] Please specify 1~4 for option "-o". \
+                            (Default is same as "-o1")\n')
                     exit(1)
 
                 # Try to create a directory to store music files
                 try:
-                    makedirs(save_dir)
+                    dir_output.mkdir(parents=True, exist_ok=True)
                 except:
-                    pass
+                    print('\n[ERROR] Cannot create target directory: {}'.format(dir_output))
+                    exit(1)
 
-                if  args.force or path.exists(save_path) == False:
+                if args.force or path_output.exists() == False:
                     output_options = {'ab':'64k', 'id3v2_version':'3', \
                         'metadata:g:0':'artist=NHK', \
                         'metadata:g:1':'album='+prog_title, \
@@ -183,7 +196,7 @@ if __name__ == '__main__':
                     (
                         ffmpeg
                         .input(url_music_source)
-                        .output(save_path, **output_options)
+                        .output(str(path_output.resolve()), **output_options)
                         .overwrite_output()
                         .run()
                     )
