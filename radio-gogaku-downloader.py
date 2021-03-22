@@ -9,7 +9,6 @@
 # 2019/05/02    v1.0    Initial
 # 2021/03/20    v2.0    Change program info source from XML to JSON (prep for April)
 #
-#from os import makedirs, path
 from pathlib import Path
 import sys
 import json
