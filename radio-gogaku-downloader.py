@@ -8,6 +8,7 @@
 #
 # 2019/05/02    v1.0    Initial
 # 2021/03/20    v2.0    Change program info source from XML to JSON (prep for April)
+# 2021/03/30    v2.1    Update not to use order numbers in courses-all.json
 #
 from pathlib import Path
 import sys
@@ -39,10 +40,13 @@ class SelectForm(npyscreen.ActionForm):
             for i in range(6):      # Just copy line 1 through line 6 in the source file
                 fd.write(lall[i])
             for i in range(len(selects)):   # Copy lines of selected courses
-                l = lall[selects[i] + 6]
-                if i == len(selects) - 1:
-                    l = l[:l.rfind(',')] + '\n'
-                fd.write(l)
+                json_prog_one = json_prog_all['programs'][selects[i]]
+                json_prog_one['num'] = str(selects[i])
+                s = '        ' + json.dumps(json_prog_one, ensure_ascii=False)
+                if i < len(selects) - 1:    # Add a comma if it's not the last line
+                    s += ','
+                s += '\n'
+                fd.write(s)
             for i in range(2):
                 fd.write(lall[len(lall) - 2 + i])   # Copy last 2 lines in the source file
 
@@ -79,10 +83,14 @@ if __name__ == '__main__':
     dir_current = Path(__file__).resolve().parent
     path_prog_all = dir_current / path_prog_all
     path_prog_sel = dir_current / path_prog_sel
-    #if path.exists(path_prog_sel):
+    # If courses-selected.json exists, put selected program list (dir numbers) to prog_sel_num[]
     if path_prog_sel.exists():
         file_prog_sel = open(path_prog_sel, 'r')
-        json_prog_sel = json.load(file_prog_sel)
+        try:
+            json_prog_sel = json.load(file_prog_sel)
+        except:
+            print('\n[ERROR] "courses-selected.json" is broken. Try to delete it and select courses again.')
+            exit(1)
         prog_sel = json_prog_sel['programs']
         prog_sel_num = []
         for i in range(len(prog_sel)):
@@ -95,7 +103,7 @@ if __name__ == '__main__':
         try:
             file_prog_all = open(path_prog_all, 'r', encoding='utf-8')
         except:
-            print('[ERROR] Cannot open {}.'.format(path_prog_all))
+            print('\n[ERROR] Cannot open {}.'.format(path_prog_all))
             exit(1)
         json_prog_all = json.load(file_prog_all)
         prog_all = json_prog_all['programs']
@@ -130,10 +138,10 @@ if __name__ == '__main__':
             try:
                 file_prog_this_week = requests.get(url_prog_this_week)
             except:
-                print('[ERROR] Cannot connect to site: {}'.format(url_prog_this_week))
+                print('\n[ERROR] Cannot connect to site: {}'.format(url_prog_this_week))
                 exit(1)
             if file_prog_this_week.status_code != 200:
-                print('[ERROR] Cannot open program JSON fiie: {}'.format(prog_sel_title[i]))
+                print('\n[ERROR] Cannot open program JSON fiie: {}'.format(prog_sel_title[i]))
                 exit(1)
 
             # Set file output directory
