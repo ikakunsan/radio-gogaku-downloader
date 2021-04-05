@@ -161,7 +161,7 @@ if __name__ == '__main__':
                     onair_date = onair_date_mmdd
 
                 url_music_source = json_prog_this_week['main']['detail_list'][i]['file_list'][0]['file_name']
-                nendo = get_nendo(json_prog_this_week['main']['detail_list'][i]['file_list'][0]['aa_vinfo3'][:8])
+                nendo = get_nendo(json_prog_this_week['main']['dev'][:4]+json_prog_this_week['main']['dev'][5:7]+json_prog_this_week['main']['dev'][8:10])
 
                 # Default output format
                 #       ({DIR}/{year}/{course title}/{date}.mp3)
