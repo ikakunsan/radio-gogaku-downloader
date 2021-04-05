@@ -35,7 +35,7 @@ Linux（含むWSL。たぶんMacOSも可）。
 ## 使い方
 コマンドラインから実行。
 
-    radio-gogaku-downloader.py [-h] [-s] [-y] [-d DIR] [-o OUTPUT]
+    python3 radio-gogaku-downloader.py [-h] [-s] [-y] [-d DIR] [-o OUTPUT]
 
 ### オプション
 
