@@ -3,12 +3,9 @@
 #
 # NHK radio gogaku downloader
 #
-# Memo:
-#   (2021/03/12) Program source format was changed to JSON from XML (XML will be no longer used from Apr 2021)
+# 2021 ikakunsan
+# https://github.com/ikakunsan/radio-gogaku-downloader
 #
-# 2019/05/02    v1.0    Initial
-# 2021/03/20    v2.0    Change program info source from XML to JSON (prep for April)
-# 2021/03/30    v2.1    Update not to use order numbers in courses-all.json
 #
 from pathlib import Path
 import sys
@@ -25,6 +22,12 @@ class SelectApp(npyscreen.StandardApp):
 
 class SelectForm(npyscreen.ActionForm):
     def create(self):
+        prog_sel_num = []
+        for ix_sel in range(len(prog_sel_title)):
+            for ix_all in range(len(prog_all_title)):
+                if prog_sel_title[ix_sel] == prog_all_title[ix_all]:
+                    prog_sel_num.append(ix_all)
+                    break
         self.multiselect = self.add(npyscreen.TitleMultiSelect, \
                 relx=3, rely=2, value=prog_sel_num, name="講座選択", \
                 values=prog_all_title, scroll_exit=True)
@@ -33,22 +36,22 @@ class SelectForm(npyscreen.ActionForm):
         self.parentApp.setNextForm(None)
         selects = self.multiselect.value
         lall = []
-        with open(path_prog_all, mode='r') as fs:
+        with open(path_prog_all, mode='r', encoding='utf-8') as fs:
             for sline in fs:
                 lall.append(sline)
-        with open(path_prog_sel, mode='w') as fd:
+        with open(path_prog_sel, mode='w', encoding='utf-8') as fd:
             for i in range(6):      # Just copy line 1 through line 6 in the source file
                 fd.write(lall[i])
             for i in range(len(selects)):   # Copy lines of selected courses
                 json_prog_one = json_prog_all['programs'][selects[i]]
-                json_prog_one['num'] = str(selects[i])
                 s = '        ' + json.dumps(json_prog_one, ensure_ascii=False)
-                if i < len(selects) - 1:    # Add a comma if it's not the last line
-                    s += ','
-                s += '\n'
+#                if i < len(selects) - 1:    # Add a comma if it's not the last line
+#                    s += ','
+#                s += '\n'
+                s += ',\n'
                 fd.write(s)
-            for i in range(2):
-                fd.write(lall[len(lall) - 2 + i])   # Copy last 2 lines in the source file
+            for i in range(3):
+                fd.write(lall[len(lall) - 3 + i])   # Copy last 3 lines in the source file
 
     def on_cancel(self):
         self.parentApp.setNextForm(None)
@@ -85,21 +88,22 @@ if __name__ == '__main__':
     path_prog_sel = dir_current / path_prog_sel
     # If courses-selected.json exists, put selected program list (dir numbers) to prog_sel_num[]
     if path_prog_sel.exists():
-        file_prog_sel = open(path_prog_sel, 'r')
+        file_prog_sel = open(path_prog_sel, 'r', encoding='utf-8')
         try:
             json_prog_sel = json.load(file_prog_sel)
         except:
             print('\n[ERROR] "courses-selected.json" is broken. Try to delete it and select courses again.')
             exit(1)
         prog_sel = json_prog_sel['programs']
-        prog_sel_num = []
-        for i in range(len(prog_sel)):
-            prog_sel_num.append(int(prog_sel[i]['num']))
+        if len(prog_sel) > 0:
+            for i in range(len(prog_sel)):
+                if prog_sel[i]['dir'] == 'EEEE':
+                    prog_sel.pop(i)
     else:
-        prog_sel_num = []
+        prog_sel = []
 
     # If selected json not exist or course select option then open selection menu
-    if  args.select or len(prog_sel_num) == 0:
+    if  args.select or len(prog_sel) == 0:
         try:
             file_prog_all = open(path_prog_all, 'r', encoding='utf-8')
         except:
@@ -108,8 +112,14 @@ if __name__ == '__main__':
         json_prog_all = json.load(file_prog_all)
         prog_all = json_prog_all['programs']
         prog_all_title = []
+        prog_sel_title = []
         for i in range(len(prog_all)):
-            prog_all_title.append(prog_all[i]['title'])
+            if prog_all[i]['dir'] != 'EEEE':
+                prog_all_title.append(prog_all[i]['title'])
+        if len(prog_sel) != 0:
+            for i in range(len(prog_sel)):
+                if prog_sel[i]['dir'] != 'EEEE':
+                    prog_sel_title.append(prog_sel[i]['title'])
         # Open TUI menu to create JSON file
         SelApp = SelectApp()
         SelApp.run()
@@ -192,18 +202,25 @@ if __name__ == '__main__':
                 try:
                     dir_output.mkdir(parents=True, exist_ok=True)
                 except:
-                    print('\n[ERROR] Cannot create target directory: {}'.format(dir_output))
+                    print('\n[ERROR] Cannot create target directory: {}\n'.format(dir_output))
                     exit(1)
 
                 if args.force or path_output.exists() == False:
-                    output_options = {'ab':'64k', 'id3v2_version':'3', \
-                        'metadata:g:0':'artist=NHK', \
-                        'metadata:g:1':'album='+prog_title, \
-                        'metadata:g:2':'date='+nendo}
-                    (
-                        ffmpeg
-                        .input(url_music_source)
-                        .output(str(path_output.resolve()), **output_options)
-                        .overwrite_output()
-                        .run()
-                    )
+                    try:
+                        output_options = {'ab':'64k', 'id3v2_version':'3', \
+                            'metadata:g:0':'artist=NHK', \
+                            'metadata:g:1':'album='+prog_title, \
+                            'metadata:g:2':'date='+nendo}
+                        (
+                            ffmpeg
+                            .input(url_music_source)
+                            .output(str(path_output.resolve()), **output_options)
+                            .overwrite_output()
+                            .run()
+                        )
+                    except FileNotFoundError:
+                        print('\n[ERROR] ffmpeg is not installed.\n')
+                    except ffmpeg._run.Error:
+                        print('\n[ERROR] ffmpeg error. Maybe source file does not exist.\n')
+                    except:
+                        print('\n[ERROR] Unknown error.\n')
