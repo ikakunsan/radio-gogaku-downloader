@@ -36,7 +36,7 @@ Linux（含むWSL）。たぶんMacOSも可。
 ## 使い方
 コマンドラインから実行。（Windows以外。Windowsでの使用法は注意事項参照）
 
-    python3 radio-gogaku-downloader.py [-h] [-s] [-y] [-d DIR] [-o OUTPUT]
+    radio-gogaku-downloader.py [-h] [-s] [-y] [-d DIR] [-o OUTPUT]
 
 cronでの実行例 （一般ユーザーで実行。毎週月曜日の12:00に実行）
 
@@ -113,6 +113,9 @@ Windowsでの使用について。
   番組選択の代替の方法については、windowsディレクトリのREADME.txtをご参照ください。
 
 ## 履歴
+### V2.2.2
+- 「ポルトガル語入門」の講座名とアドレスが間違っていたので訂正。
+
 ### V2.2.1
 - Windows用に実行ファイルを追加。Python3のインストールは不要に。
 
@@ -139,6 +142,7 @@ Windowsでの使用について。
 - 最初のバージョン。
 ## TODO
 - 現時点で特になし。
+- Windows用講座選択メニュー???
 
 ## その他
 ミスで、過去のスターなど消してしまいました…。:cry:
