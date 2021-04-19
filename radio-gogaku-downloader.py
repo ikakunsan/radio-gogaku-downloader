@@ -45,9 +45,6 @@ class SelectForm(npyscreen.ActionForm):
             for i in range(len(selects)):   # Copy lines of selected courses
                 json_prog_one = json_prog_all['programs'][selects[i]]
                 s = '        ' + json.dumps(json_prog_one, ensure_ascii=False)
-#                if i < len(selects) - 1:    # Add a comma if it's not the last line
-#                    s += ','
-#                s += '\n'
                 s += ',\n'
                 fd.write(s)
             for i in range(3):
@@ -74,7 +71,9 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dir', \
                 help='Specify directory to store audio files.')
     parser.add_argument('-o', '--output', default = 1, type = int, \
-                help='Output style. OUTPUT should be 1~4 (Default is 1). Please refer to readme for detail.')
+                help='Output style. OUTPUT should be 1~4 (Default is 1). Please refer to README for detail.')
+    parser.add_argument('-q', '--quality', default = 0, type = int, \
+                help='Sound quality. 0:standard (64kbps), 1:high (128kbps), 2:best (256kbps)')
     parser.add_argument('-y', '--year', default = '1', type = strtobool, \
                 help='Switch to add Year in output file name. 0:without year, 1:with year (Default is 1)')
     parser.add_argument('-f', '--force',  action='store_true', \
@@ -86,6 +85,25 @@ if __name__ == '__main__':
     dir_current = Path(__file__).resolve().parent
     path_prog_all = dir_current / path_prog_all
     path_prog_sel = dir_current / path_prog_sel
+
+    # Check option parameters
+    if args.output < 1 or args.output > 4:
+        print('\n[OPTION ERROR] Please specify 1~4 for option "-o". \
+            (Without this option is same as "-o 1")\n')
+        exit(1)
+
+    mp3_bitrate = '64k'         # Default
+    if args.quality == 0:       # 0: Default value
+        mp3_bitrate = '64k'
+    elif args.quality == 1:
+        mp3_bitrate = '128k'
+    elif args.quality == 2:
+        mp3_bitrate = '256k'
+    else:
+        print('\n[OPTION ERROR] Please specify 0~2 for option "-q". \
+            (Without this option is same as "-q 0")\n')
+        exit(1)
+
     # If courses-selected.json exists, put selected program list (dir numbers) to prog_sel_num[]
     if path_prog_sel.exists():
         file_prog_sel = open(path_prog_sel, 'r', encoding='utf-8')
@@ -207,7 +225,8 @@ if __name__ == '__main__':
 
                 if args.force or path_output.exists() == False:
                     try:
-                        output_options = {'ab':'64k', 'id3v2_version':'3', \
+                        output_options = {'id3v2_version':'3', \
+                            'ab':mp3_bitrate,
                             'metadata:g:0':'artist=NHK', \
                             'metadata:g:1':'album='+prog_title, \
                             'metadata:g:2':'date='+nendo}

@@ -11,12 +11,17 @@ REM  5. ショートカットのアイコンをダブルクリックで実行。
 REM  6. 実行時にウィンドウを開きたくないなら、ショートカットのアイコンを右クリックして
 REM     プロパティを開き、「実行時の大きさ」から「最小化」を選択して、OKボタンを押す。
 REM
+REM 【-qオプション (数字との間にスペースあってもなくてもよし)】
+REM  -q 0   ← 64kbps MP3に変換（オプション無しの場合も同じ）
+REM  -q 1   ← 128kbps MP3に変換
+REM  -q 2   ← 256kbps MP3に変換
+REM
 REM 【-dの書き方（ダウンロード先）の例】
 REM
-REM -d download    ← 現在のフォルダの下のdownloadというフォルダ（無い場合は自動作成）
-REM -d C:\Users\XXXX\Music\Gogaku    ← XXXXはユーザー名。「ミュージック」フォルダの下の
-REM                                     Gogakuというフォルダ（無い場合は自動作成）
-REM -d C:/Users/XXXX/Music/Gogaku    ← 上と同じ（\でも/でもよい）
+REM  -d download    ← 現在のフォルダの下のdownloadというフォルダ（無い場合は自動作成）
+REM  -d C:\Users\XXXX\Music\Gogaku    ← XXXXはユーザー名。「ミュージック」フォルダの下の
+REM                                      Gogakuというフォルダ（無い場合は自動作成）
+REM  -d C:/Users/XXXX/Music/Gogaku    ← 上と同じ（\でも/でもよい）
 
 
-radio-gogaku-downloader.exe -d download
+radio-gogaku-downloader.exe -q 0 -d download
