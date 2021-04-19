@@ -39,9 +39,9 @@ Linux（含むWSL）。たぶんMacOSも可。
 
     radio-gogaku-downloader.py [-h] [-s] [-y] [-d DIR] [-o OUTPUT]
 
-cronでの実行例 （一般ユーザーで実行。毎週月曜日の12:00に実行）
+cronでの実行例 （一般ユーザーで実行。ビットレート128kbps。毎週月曜日の12:00に実行）
 
-    00 12 * * 1   /home/ikakunsan/bin/radio-gogaku-downloader.py -d /mnt/win/gogaku
+    00 12 * * 1   /home/ikakunsan/bin/radio-gogaku-downloader.py -q1 -d /mnt/win/gogaku
 
 ### オプション
 
@@ -59,8 +59,8 @@ cronでの実行例 （一般ユーザーで実行。毎週月曜日の12:00に�
 -h, -s を指定したとき以外は必須です。音声をダウンロードする場合は、必ず指定してください。
 
 #### -q QUALITY, --quality QUALITY
-MP3のビットレートの設定。0:64kbps (standard), 1:128kbps (high), 2:256kbps (best)。
-デフォルトは0 (64kbps)。
+MP3のビットレートを0から2までの数字で指定。0: 64kbps (standard), 1: 128kbps (high), 2: 256kbps (best)。
+デフォルトは0 (64kbps)。（数字の前の空白はあってもなくても可）
 15分の放送でのファイルサイズは、64kbpsで約7MB、128kbpsで約14MB、256kbpsで約28MBとなります。
 64kbpsだと少し歪みがあります (AM放送並の品質)。128kbsだと音質はかなり向上します。256kbpsと128bpsの音質の差は小さい印象です。
 サイズとの兼ね合いでお好みで。
@@ -123,7 +123,7 @@ Windowsでの使用について。
 ## 履歴
 
 ### V2.3
-- 音質選択のオプション追加。
+- 音質（出力ファイルのビットレート）選択のオプション追加。
 
 ### V2.2.2
 - 「ポルトガル語入門」の講座名とアドレスが間違っていたので訂正。
