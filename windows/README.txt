@@ -1,63 +1,63 @@
 
-Windows�ł̎g����
+Windowsでの使い方
 
-- ���s�t�@�C���P�̂œ��삵�܂��B���C�u�����t�@�C���͕s�v�ł��B
-- ���s�t�@�C���Ɠ����t�H���_�ɁAcourses-selected.json ���K�v�ł��B
-- Windows��ł�-s�I�v�V�����͎g���܂���B�iWindows�p��curses���C�u������
-  ���{����T�|�[�g���Ă��Ȃ����߁j
+- 実行ファイル単体で動作します。ライブラリファイルは不要です。
+- 実行ファイルと同じフォルダに、courses-selected.json が必要です。
+- Windows上では-sオプションは使えません。（Windows用のcursesライブラリが
+  日本語をサポートしていないため）
 
-- ���C�Z���X�̊֌W�ŁAffmpeg�͓������Ă��܂���B�C���X�g�[�����Ă��Ȃ��ꍇ
-  �͕ʓr�p�ӂ���K�v������܂��B
+- ライセンスの関係で、ffmpegは同梱していません。インストールしていない場合
+  は別途用意する必要があります。
 
-�yffmpeg�̏����z
- 1. ffmpeg���_�E�����[�h�B
-    https://www.gyan.dev/ffmpeg/builds/packages/ ��release�̉��ɂ���
-    ffmpeg-4.3.2-2021-02-27-full_build.7z �œ���m�F���Ă��܂��B
-    ������V�������̂ł���Γ����Ǝv���܂��B
-    ��L�̃y�[�W�́Arelease�̉��ɂ���K���Ȃ��̂��_�E�����[�h���܂��B
-    essntial_build, full_build�̂ǂ�ł��A7z, zip�̂�����ł������ł��B
-    ��������Azip�̒��ň�ԏ�ɂ�����̂�I��ł��������B
+【ffmpegの準備】
+ 1. ffmpegをダウンロード。
+    https://www.gyan.dev/ffmpeg/builds/packages/ のreleaseの下にある
+    ffmpeg-4.3.2-2021-02-27-full_build.7z で動作確認しています。
+    これより新しいものであれば動くと思います。
+    上記のページの、releaseの下にある適当なものをダウンロードします。
+    essntial_build, full_buildのどれでも、7z, zipのいずれでもいいです。
+    迷ったら、zipの中で一番上にあるものを選んでください。
 
- 2. �_�E�����[�h�����t�@�C�����𓀁B
-    bin�Ƃ����t�H���_�̉���ffmpeg.exe (=ffmpeg)������܂��B
-    ���ɂ����낢��ȃt�@�C���������Ă��܂����A�K�v�Ȃ̂�ffmpeg.exe�݂̂�
-    ���B
+ 2. ダウンロードしたファイルを解凍。
+    binというフォルダの下にffmpeg.exe (=ffmpeg)があります。
+    他にもいろいろなファイルが入っていますが、必要なのはffmpeg.exeのみで
+    す。
 
- 2. ffmpeg.exe���p�X�̒ʂ����Ƃ���A�������͍�ƃt�H���_ 
-    (radio-gogaku-downloader.exe�Ɠ����t�H���_) �ɒu���܂��B
-
-
-�y�ԑg���X�g�̏����z
- 1. courses-all.json���R�s�[���āA�R�s�[�����t�@�C����courses-selected.json
-    �Ƃ������O�ɕύX�B
- 2. courses-selected.json���������������̓G�f�B�^�ŊJ���A�s�v�Ȕԑg�̓�����
-    �s���폜�B�i�s�v�Ȕԑg�̍s�̂ݍ폜���āA����ȊO�͂��̂܂܂ɂ��Ă�����
-    �Ɓj
- 3. �ҏW���I�������t�@�C����ۑ��B
+ 2. ffmpeg.exeをパスの通ったところ、もしくは作業フォルダ 
+    (radio-gogaku-downloader.exeと同じフォルダ) に置きます。
 
 
-�y�g�����z
- 1. radio-gogaku-downloader.bat�̈�ԉ��̍s�� -d �ȍ~�������ɍ����悤�ɏ���
-    ������B
- 2. radio-gogaku-downloader.bat�̃A�C�R�����E�N���b�N���ăV���[�g�J�b�g����
-    ���B
- 3. �V���[�g�J�b�g�̃A�C�R�����E�N���b�N���āA���O���D���Ȃ悤�ɏ���������B
- 4. �V���[�g�J�b�g�̃A�C�R�����f�X�N�g�b�v���D���ȏꏊ�ɒu���B
- 5. �V���[�g�J�b�g�̃A�C�R�����_�u���N���b�N�Ŏ��s�B
- 6. �������s���ɃE�B���h�E���J���̂�����Ȃ�A�V���[�g�J�b�g�̃A�C�R�����E�N
-    ���b�N���ăv���p�e�B���J���A�u���s���̑傫���v����u�ŏ����v��I�����āA
-    OK�{�^���������B
+【番組リストの準備】
+ 1. courses-all.jsonをコピーして、コピーしたファイルをcourses-selected.json
+    という名前に変更。
+ 2. courses-selected.jsonをメモ帳もしくはエディタで開き、不要な番組の入った
+    行を削除。（不要な番組の行のみ削除して、それ以外はそのままにしておくこ
+    と）
+ 3. 編集が終わったらファイルを保存。
 
-�y��ȃI�v�V�����z
 
-[-q�I�v�V���� (�����Ƃ̊ԂɃX�y�[�X�����Ă��Ȃ��Ă��悵)]
- -q 0   �� 64kbps MP3�ɕϊ��i�I�v�V���������̏ꍇ�������j
- -q 1   �� 128kbps MP3�ɕϊ�
- -q 2   �� 256kbps MP3�ɕϊ�
+【使い方】
+ 1. radio-gogaku-downloader.batの一番下の行の -d 以降を自分に合うように書き
+    換える。
+ 2. radio-gogaku-downloader.batのアイコンを右クリックしてショートカットを作
+    成。
+ 3. ショートカットのアイコンを右クリックして、名前を好きなように書き換える。
+ 4. ショートカットのアイコンをデスクトップ等好きな場所に置く。
+ 5. ショートカットのアイコンをダブルクリックで実行。
+ 6. もし実行時にウィンドウが開くのがいやなら、ショートカットのアイコンを右ク
+    リックしてプロパティを開き、「実行時の大きさ」から「最小化」を選択して、
+    OKボタンを押す。
 
-[-d �I�v�V�����i�_�E�����[�h��j�̗�]
- -d download    �� radio-gogaku-downloader.exe�̂���t�H���_�̉���download��
-                   �����t�H���_�i�����ꍇ�͎����쐬�j�̒��B
- -d C:\Users\XXXX\Music\Gogaku    �� (XXXX�̓��[�U�[��)�u�~���[�W�b�N�v�t�H
-                   ���_�̉���Gogaku�Ƃ����t�H���_�i�����ꍇ�͎����쐬�j�̒�
- -d C:/Users/XXXX/Music/Gogaku    �� ��Ɠ����i\�ł�/�ł��悢�j
+【主なオプション】
+
+[-qオプション (数字との間にスペースあってもなくてもよし)]
+ -q 0   ← 64kbps MP3に変換（オプション無しの場合も同じ）
+ -q 1   ← 128kbps MP3に変換
+ -q 2   ← 256kbps MP3に変換
+
+[-d オプション（ダウンロード先）の例]
+ -d download    ← radio-gogaku-downloader.exeのあるフォルダの下のdownloadと
+                   いうフォルダ（無い場合は自動作成）の中。
+ -d C:\Users\XXXX\Music\Gogaku    ← (XXXXはユーザー名)「ミュージック」フォ
+                   ルダの下のGogakuというフォルダ（無い場合は自動作成）の中
+ -d C:/Users/XXXX/Music/Gogaku    ← 上と同じ（\でも/でもよい）
