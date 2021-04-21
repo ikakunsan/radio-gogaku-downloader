@@ -27,13 +27,16 @@ Windowsでの使い方
     (radio-gogaku-downloader.exeと同じフォルダ) に置きます。
 
 
-【番組リストの準備】
- 1. courses-all.jsonを実行ファイルと同じフォルダにコピー。
- 2. コピーしたファイルをcourses-selected.jsonという名前に変更。
- 3. courses-selected.jsonをメモ帳もしくは適当なテキストエディタで開き、
+【courses-selected.json (ダウンロードしたい番組リスト)の準備】
+ 1. courses-selected.jsonをメモ帳もしくは適当なテキストエディタで開き、
    「不要な番組名の入った行」を行単位で削除。（不要な番組の行のみ削除して、
    それ以外の行はそのままにしておくこと）
- 4. 編集が終わったらファイルを保存。
+ 2. 編集が終わったらファイルを保存。
+
+ 番組を後から追加したい場合は、courses-all.jsonから番組名の入った行を
+ cousrses-selected.jsonにコピーするか（行の順番は問いません）、
+ courses-all.jsonをコピーして cousrses-selected.jsonという名前に変え、
+ 上記の手順で必要な番組だけを残してください。
 
 
 【使い方】
