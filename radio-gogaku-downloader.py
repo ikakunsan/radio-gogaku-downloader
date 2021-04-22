@@ -16,7 +16,7 @@ import npyscreen
 import ffmpeg
 from distutils.util import strtobool
 
-class SelectApp(npyscreen.StandardApp):
+class SelectApp(npyscreen.NPSAppManaged):
     def onStart(self):
         self.addForm('MAIN', SelectForm, name='Course Selection')
 
