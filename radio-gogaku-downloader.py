@@ -30,7 +30,7 @@ class SelectForm(npyscreen.ActionForm):
                     prog_sel_num.append(ix_all)
                     break
         self.multiselect = self.add(npyscreen.TitleMultiSelect, \
-                relx=3, rely=2, value=prog_sel_num, name="講座選択", \
+                relx=3, rely=2, value=prog_sel_num, name="講 座 選 択 ", \
                 values=prog_all_title, scroll_exit=True)
 
     def on_ok(self):
