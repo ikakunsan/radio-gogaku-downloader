@@ -15,6 +15,7 @@ import requests
 import npyscreen
 import ffmpeg
 from distutils.util import strtobool
+from sys import exit
 
 class SelectApp(npyscreen.NPSAppManaged):
     def onStart(self):
