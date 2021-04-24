@@ -83,7 +83,10 @@ if __name__ == '__main__':
 
     # Try to read courses-selected.json file
     # Try to extract JSON file
-    dir_current = Path(__file__).resolve().parent
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        dir_current = Path(sys.argv[0]).resolve().parent
+    else:
+        dir_current = Path(__file__).resolve().parent
     path_prog_all = dir_current / path_prog_all
     path_prog_sel = dir_current / path_prog_sel
 
