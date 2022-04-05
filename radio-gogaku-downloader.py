@@ -2,11 +2,12 @@
 #
 # NHK radio gogaku downloader
 #
-# 2021 ikakunsan
+# 2021,2022 ikakunsan
 # https://github.com/ikakunsan/radio-gogaku-downloader
 #
 #
 import sys
+import os
 import json
 from pathlib import Path
 import argparse
@@ -20,12 +21,13 @@ from sys import exit
 import logging as lgg
 
 logger = lgg.getLogger(__name__)
-handler = lgg.FileHandler("radio-gogaku-downloader.log", encoding="utf-8")
+curpath = os.path.dirname(os.path.abspath(__file__))
+handler = lgg.FileHandler(f"{curpath}/radio-gogaku-downloader.log", encoding="utf-8")
 # handler = lgg.StreamHandler()
 log_format = lgg.Formatter("%(asctime)s : %(levelname)s : %(message)s")
 handler.setFormatter(log_format)
-handler.setLevel(lgg.INFO)
-logger.setLevel(lgg.INFO)
+handler.setLevel(lgg.ERROR)
+logger.setLevel(lgg.ERROR)
 logger.addHandler(handler)
 logger.propagate = False
 
@@ -98,7 +100,7 @@ def log_print(loglevel, message):
     elif loglevel == "CRITICAL":
         logger.critical(msg_str)
     else:
-        logger.debug("[PARAM ERROR]", msg_str)
+        logger.error("[PARAM ERROR]", msg_str)
 
 
 if __name__ == "__main__":
@@ -109,7 +111,7 @@ if __name__ == "__main__":
 
     log_message = ("---------",)
     log_print("INFO", log_message)
-    log_message = ("Program Started 始めるYO",)
+    log_message = ("Program Started",)
     log_print("INFO", log_message)
 
     parser = argparse.ArgumentParser(
@@ -285,7 +287,7 @@ if __name__ == "__main__":
             except:
                 log_message = (
                     "[OPTION ERROR]",
-                    'Please specify target directory with option "-d"\n',
+                    'Please specify target directory with option "-d"',
                 )
                 log_print("ERROR", log_message)
                 exit(1)
@@ -323,22 +325,22 @@ if __name__ == "__main__":
                 #       ({DIR}/{year}/{course title}/{date}.mp3)
                 if args.output == 1:
                     dir_output = dir_output_base / nendo / prog_title
-                    path_output = dir_output / (onair_date + ".mp3")
+                    path_output = dir_output / f"{onair_date}.mp3"
                 # Output format option-1
                 #       ({DIR}/{year}/{course title}/{course title}_{date}.mp3)
                 elif args.output == 2:
                     dir_output = dir_output_base / nendo / prog_title
-                    path_output = dir_output / (prog_title + "_" + onair_date + ".mp3")
+                    path_output = dir_output / f"{prog_title}_{onair_date}.mp3"
                 # Output format option-2
                 #       ({DIR}/{year}/{course title}_{date}.mp3)
                 elif args.output == 3:
                     dir_output = dir_output_base / nendo
-                    path_output = dir_output / (prog_title + "_" + onair_date + ".mp3")
+                    path_output = dir_output / f"{prog_title}_{onair_date}.mp3"
                 # Output format option-3
                 #       ({DIR}/{course title}/{year}/{date}.mp3)
                 elif args.output == 4:
                     dir_output = dir_output_base / prog_title / nendo
-                    path_output = dir_output / (onair_date + ".mp3")
+                    path_output = dir_output / f"{onair_date}.mp3"
                 else:
                     log_message = (
                         "[OPTION ERROR]",
@@ -359,35 +361,52 @@ if __name__ == "__main__":
                     log_print("ERROR", log_message)
                     exit(1)
 
-                if args.force or path_output.exists() == False:
-                    try:
-                        output_options = {
-                            "id3v2_version": "3",
-                            "ab": mp3_bitrate,
-                            "metadata:g:0": "artist=NHK",
-                            "metadata:g:1": "album=" + prog_title,
-                            "metadata:g:2": "date=" + nendo,
-                        }
-                        (
-                            ffmpeg.input(url_music_source)
-                            .output(str(path_output.resolve()), **output_options)
-                            .overwrite_output()
-                            .run()
-                        )
-                    except FileNotFoundError:
-                        log_message = (
-                            "[ERROR]",
-                            "ffmpeg is not installed.",
-                        )
-                        log_print("ERROR", log_message)
-                    except ffmpeg._run.Error:
-                        log_message = (
-                            "[ERROR]",
-                            "ffmpeg error. Maybe source file does not exist.",
-                        )
-                        log_print("ERROR", log_message)
-                    except:
-                        log_message = ("[ERROR]", "Unknown error.")
-                        log_print("ERROR", log_message)
+                if args.force or not path_output.exists():
+                    output_options = {
+                        "id3v2_version": "3",
+                        "ab": mp3_bitrate,
+                        "metadata:g:0": "artist=NHK",
+                        "metadata:g:1": "album=" + prog_title,
+                        "metadata:g:2": "date=" + nendo,
+                    }
+                    http_error = False
+                    retry_max = 4  # retry count in HTTP 404 error
+                    retry = 1
+                    while True:
+                        try:
+                            (
+                                ffmpeg.input(url_music_source)
+                                .output(str(path_output.resolve()), **output_options)
+                                .overwrite_output()
+                                .run()
+                            )
+                        except FileNotFoundError:
+                            log_message = (
+                                "[ERROR]",
+                                "ffmpeg is not installed.",
+                            )
+                            log_print("ERROR", log_message)
+                        except ffmpeg._run.Error:
+                            http_error = True
+                            log_message = (
+                                "[ERROR]",
+                                "ffmpeg error. Maybe source file does not exist.",
+                                prog_title,
+                                onair_date,
+                                "will retry",
+                                str(retry),
+                            )
+                            log_print("ERROR", log_message)
+                        except:
+                            log_message = (
+                                "[ERROR]",
+                                "Unknown error.",
+                            )
+                            log_print("ERROR", log_message)
+                        retry += 1
+                        if retry > retry_max or not http_error:
+                            http_error = False
+                            break
+
         log_message = ("Program finished",)
         log_print("INFO", log_message)
