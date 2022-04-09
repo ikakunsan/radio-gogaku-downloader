@@ -370,7 +370,7 @@ if __name__ == "__main__":
                         "metadata:g:2": "date=" + nendo,
                     }
                     http_error = False
-                    retry_max = 4  # retry count in HTTP 404 error
+                    retry_max = 10  # retry count in HTTP 404 error
                     retry = 1
                     while True:
                         try:
