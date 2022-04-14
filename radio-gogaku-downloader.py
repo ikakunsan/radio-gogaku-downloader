@@ -8,6 +8,7 @@
 #
 import sys
 import os
+import datetime as dt
 import json
 from pathlib import Path
 import argparse
@@ -20,14 +21,23 @@ from sys import exit
 # from logging import getLogger, StreamHandler, DEBUG
 import logging as lgg
 
+FILE_SIZE_PER_SEC = {
+    "64k": 64000,
+    "128k": 128000,
+    "256k": 256000,
+}
+RETRY_MAX = 5  # retry count in HTTP 404 error
+
+logging_filename = "radio-gogaku-downloader.log"
+logging_path = os.path.dirname(os.path.abspath(__file__))  # Current directory
 logger = lgg.getLogger(__name__)
-curpath = os.path.dirname(os.path.abspath(__file__))
-handler = lgg.FileHandler(f"{curpath}/radio-gogaku-downloader.log", encoding="utf-8")
+handler = lgg.FileHandler(f"{logging_path}/{logging_filename}", encoding="utf-8")
 # handler = lgg.StreamHandler()
 log_format = lgg.Formatter("%(asctime)s : %(levelname)s : %(message)s")
 handler.setFormatter(log_format)
-handler.setLevel(lgg.ERROR)
-logger.setLevel(lgg.ERROR)
+log_level = lgg.ERROR
+handler.setLevel(log_level)
+logger.setLevel(log_level)
 logger.addHandler(handler)
 logger.propagate = False
 
@@ -79,6 +89,10 @@ class SelectForm(npyscreen.ActionForm):
         self.parentApp.setNextForm(None)
 
 
+class NetworkProtocolError(Exception):
+    pass
+
+
 def get_nendo(ymd):
     nendo = int(ymd[:4])
     if int(ymd[4:6]) < 4:
@@ -88,7 +102,6 @@ def get_nendo(ymd):
 
 def log_print(loglevel, message):
     msg_str = " ".join(message)
-    print("\n", msg_str, "\n")
     if loglevel == "DEBUG":
         logger.debug(msg_str)
     elif loglevel == "INFO":
@@ -97,8 +110,10 @@ def log_print(loglevel, message):
         logger.warning(msg_str)
     elif loglevel == "ERROR":
         logger.error(msg_str)
+        print("\n", msg_str, "\n")
     elif loglevel == "CRITICAL":
         logger.critical(msg_str)
+        print("\n", msg_str, "\n")
     else:
         logger.error("[PARAM ERROR]", msg_str)
 
@@ -108,11 +123,6 @@ if __name__ == "__main__":
     path_prog_all = "courses-all.json"
     path_prog_sel = "courses-selected.json"
     ################################
-
-    log_message = ("---------",)
-    log_print("INFO", log_message)
-    log_message = ("Program Started",)
-    log_print("INFO", log_message)
 
     parser = argparse.ArgumentParser(
         description="NHK radio gogaku streaming downloader"
@@ -148,6 +158,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-f", "--force", action="store_true", help="Force overwrite existing files."
     )
+    parser.add_argument("--debug", action="store_true", help="Debug mode")
     args = parser.parse_args()
 
     # Try to read courses-selected.json file
@@ -158,6 +169,18 @@ if __name__ == "__main__":
         dir_current = Path(__file__).resolve().parent
     path_prog_all = dir_current / path_prog_all
     path_prog_sel = dir_current / path_prog_sel
+
+    # Set log level to debug
+    if args.debug:
+        log_level = lgg.DEBUG
+        handler.setLevel(log_level)
+        logger.setLevel(log_level)
+        logger.addHandler(handler)
+
+    log_message = ("---------",)
+    log_print("INFO", log_message)
+    log_message = ("Program Started",)
+    log_print("INFO", log_message)
 
     # Check option parameters
     if args.output < 1 or args.output > 4:
@@ -293,15 +316,38 @@ if __name__ == "__main__":
                 exit(1)
 
             json_prog_this_week = json.loads(file_prog_this_week.text)
+
             for i in range(
                 len(json_prog_this_week["main"]["detail_list"])
             ):  # Process for each date
-                prog_title = json_prog_this_week["main"]["program_name"]
-                onair_date = json_prog_this_week["main"]["detail_list"][i]["file_list"][
-                    0
-                ]["aa_vinfo3"]
-                onair_date_mmdd = onair_date[4:6] + "月" + onair_date[6:8] + "日放送分"
-                onair_date = onair_date[0:4] + "年" + onair_date_mmdd
+                try:
+                    prog_title = json_prog_this_week["main"]["program_name"]
+                    onair_datetime = json_prog_this_week["main"]["detail_list"][i][
+                        "file_list"
+                    ][0]["aa_vinfo4"]
+                    onair_date_mmdd = (
+                        onair_datetime[5:7] + "月" + onair_datetime[8:10] + "日放送分"
+                    )
+                    onair_date = onair_datetime[0:4] + "年" + onair_date_mmdd
+                    onair_start = dt.datetime.strptime(
+                        onair_datetime[0:19], "%Y-%m-%dT%H:%M:%S"
+                    )
+                    onair_end = dt.datetime.strptime(
+                        onair_datetime[26:45], "%Y-%m-%dT%H:%M:%S"
+                    )
+                    onair_time = onair_end - onair_start
+                    expected_file_size = (
+                        FILE_SIZE_PER_SEC[mp3_bitrate] * int(onair_time.seconds) / 8
+                    )
+                except:
+                    log_message = (
+                        "[ERROR]",
+                        "This program does not exist",
+                        prog_title,
+                    )
+                    log_print("ERROR", log_message)
+                    break
+
                 if args.year == 0:
                     onair_date = onair_date_mmdd
 
@@ -370,7 +416,6 @@ if __name__ == "__main__":
                         "metadata:g:2": "date=" + nendo,
                     }
                     http_error = False
-                    retry_max = 10  # retry count in HTTP 404 error
                     retry = 1
                     while True:
                         try:
@@ -380,12 +425,36 @@ if __name__ == "__main__":
                                 .overwrite_output()
                                 .run()
                             )
+
+                            actual_file_size = os.path.getsize(path_output)
+
+                            log_print(
+                                "DEBUG",
+                                ("Expected File Size:", str(int(expected_file_size))),
+                            )
+                            log_print(
+                                "DEBUG",
+                                ("Actual File Size:  ", str(int(actual_file_size))),
+                            )
+
+                            if actual_file_size < expected_file_size:
+                                log_print(
+                                    "ERROR",
+                                    ("Expected Size:", str(int(expected_file_size))),
+                                )
+                                log_print(
+                                    "ERROR",
+                                    ("Actual Size:  ", str(int(actual_file_size))),
+                                )
+                                raise NetworkProtocolError
+
                         except FileNotFoundError:
                             log_message = (
                                 "[ERROR]",
                                 "ffmpeg is not installed.",
                             )
                             log_print("ERROR", log_message)
+
                         except ffmpeg._run.Error:
                             http_error = True
                             log_message = (
@@ -397,14 +466,28 @@ if __name__ == "__main__":
                                 str(retry),
                             )
                             log_print("ERROR", log_message)
+
+                        except NetworkProtocolError:
+                            http_error = True
+                            log_message = (
+                                "[ERROR]",
+                                "Network protocol error, possibly HTTP 404 error on some segments.",
+                                prog_title,
+                                onair_date,
+                                "will retry",
+                                str(retry),
+                            )
+                            log_print("ERROR", log_message)
+
                         except:
                             log_message = (
                                 "[ERROR]",
                                 "Unknown error.",
                             )
                             log_print("ERROR", log_message)
+
                         retry += 1
-                        if retry > retry_max or not http_error:
+                        if retry > RETRY_MAX or not http_error:
                             http_error = False
                             break
 
