@@ -142,9 +142,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-q",
         "--quality",
-        default=0,
+        default=1,
         type=int,
-        help="Sound quality. 0:standard (64kbps), "
+        help="Sound quality. 0:basic (64kbps), "
         + "1:high (128kbps), 2:best (256kbps)",
     )
     parser.add_argument(
