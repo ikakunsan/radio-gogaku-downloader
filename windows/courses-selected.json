@@ -1,0 +1,13 @@
+{
+    "year": "2022年度前期",
+    "url1": "https://www.nhk.or.jp/radioondemand/json",
+    "url2": "bangumi_",
+    "url3": ".json",
+    "programs": [
+        {"dir": "6806", "sub": "01", "title": "中学生の基礎英語 レベル1"},
+        {"dir": "6807", "sub": "01", "title": "中学生の基礎英語 レベル2"},
+        {"dir": "6808", "sub": "01", "title": "中高生の基礎英語 in English"},
+        {"dir": "0916", "sub": "01", "title": "ラジオ英会話"},
+        {"dir": "EEEE", "sub": "01", "title": "【最後の行】この行は消さない"}
+    ]
+}

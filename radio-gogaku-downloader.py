@@ -8,6 +8,7 @@
 #
 import sys
 import os
+import time
 import datetime as dt
 import json
 from pathlib import Path
@@ -114,6 +115,9 @@ def log_print(loglevel, message):
     elif loglevel == "CRITICAL":
         logger.critical(msg_str)
         print("\n", msg_str, "\n")
+    elif loglevel == "EXCEPTION":
+        logger.exception(msg_str)
+        print("\n", msg_str, "\n")
     else:
         logger.error("[PARAM ERROR]", msg_str)
 
@@ -144,8 +148,14 @@ if __name__ == "__main__":
         "--quality",
         default=1,
         type=int,
-        help="Sound quality. 0:basic (64kbps), "
-        + "1:high (128kbps), 2:best (256kbps)",
+        help="Sound quality. 0:basic (64kbps), " + "1:high (128kbps), 2:best (256kbps)",
+    )
+    parser.add_argument(
+        "-p",
+        "--sample",
+        default=0,
+        type=int,
+        help="Sample rate. 0:48kHz (default), 1:44.1kHz",
     )
     parser.add_argument(
         "-y",
@@ -182,7 +192,8 @@ if __name__ == "__main__":
     log_message = ("Program Started",)
     log_print("INFO", log_message)
 
-    # Check option parameters
+    ## Check option parameters
+    # Output Style
     if args.output < 1 or args.output > 4:
         log_message = (
             "[OPTION ERROR]",
@@ -192,10 +203,11 @@ if __name__ == "__main__":
         log_print("ERROR", log_message)
         exit(1)
 
-    mp3_bitrate = "64k"  # Default
-    if args.quality == 0:  # 0: Default value
+    # Audio Quality
+    mp3_bitrate = "128k"  # Default
+    if args.quality == 0:
         mp3_bitrate = "64k"
-    elif args.quality == 1:
+    elif args.quality == 1:  # Default value
         mp3_bitrate = "128k"
     elif args.quality == 2:
         mp3_bitrate = "256k"
@@ -203,7 +215,22 @@ if __name__ == "__main__":
         log_message = (
             "[OPTION ERROR]",
             'Please specify 0~2 for option "-q".'
-            '(Without this option is same as "-q 0")',
+            '(Without this option is same as "-q 1")',
+        )
+        log_print("ERROR", log_message)
+        exit(1)
+
+    # Audio Sample Rate
+    mp3_samplerate = "48k"
+    if args.sample == 0:
+        mp3_samplerate = "48k"
+    elif args.sample == 1:
+        mp3_samplerate = "44.1k"
+    else:
+        log_message = (
+            "[OPTION ERROR]",
+            'Please specify 0~1 for option "-p".'
+            '(Without this option is same as "-p 0")',
         )
         log_print("ERROR", log_message)
         exit(1)
@@ -222,6 +249,7 @@ if __name__ == "__main__":
             )
             log_print("ERROR", log_message)
             exit(1)
+
         prog_sel = json_prog_sel["programs"]
         if len(prog_sel) > 0:
             for i in range(len(prog_sel)):
@@ -411,6 +439,7 @@ if __name__ == "__main__":
                     output_options = {
                         "id3v2_version": "3",
                         "ab": mp3_bitrate,
+                        "ar": mp3_samplerate,
                         "metadata:g:0": "artist=NHK",
                         "metadata:g:1": "album=" + prog_title,
                         "metadata:g:2": "date=" + nendo,
@@ -425,9 +454,7 @@ if __name__ == "__main__":
                                 .overwrite_output()
                                 .run()
                             )
-
                             actual_file_size = os.path.getsize(path_output)
-
                             log_print(
                                 "DEBUG",
                                 ("Expected File Size:", str(int(expected_file_size))),
@@ -478,17 +505,25 @@ if __name__ == "__main__":
                                 str(retry),
                             )
                             log_print("ERROR", log_message)
+                            time.sleep(15)  # Wait for 15 seconds for retry
 
                         except:
                             log_message = (
                                 "[ERROR]",
-                                "Unknown error.",
+                                "Other error. See log file for detail.",
                             )
-                            log_print("ERROR", log_message)
+                            log_print("EXCEPTION", log_message)
 
                         retry += 1
                         if retry > RETRY_MAX or not http_error:
                             http_error = False
+                            if retry > RETRY_MAX:
+                                s = str(path_output)
+                                s = "{0}(incomplete){1}".format(
+                                    s[:-4], s[-4:]
+                                )
+                                path_output_incomp = Path(s).resolve()
+                                os.rename(path_output, path_output_incomp)
                             break
 
         log_message = ("Program finished",)
