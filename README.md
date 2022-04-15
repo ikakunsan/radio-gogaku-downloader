@@ -35,11 +35,11 @@ Linux（含むWSL）。たぶんMacOSも可。
 ## 使い方
 コマンドラインから実行。（Windows以外。Windowsでの使用法は注意事項参照）
 
-    radio-gogaku-downloader.py [-h] [-s] [-y] [-d DIR] [-o OUTPUT]
+    radio-gogaku-downloader.py [-h] [-s] [-q] [-p] [-y] [-d DIR] [-o OUTPUT]
 
-cronでの実行例 （一般ユーザーで実行。ビットレート128kbps。毎日午前11:00に実行。2022年度からサーバーへのファイルのアップロードのタイミングが毎週月曜日から毎日放送後に変更になったため、毎日走らせるのがいいかと思います）
+cronでの実行例 （一般ユーザーで実行。ビットレート128kbps。サンプリングレート44.1kHz。毎日11:00に実行。2022年度からサーバーへのファイルのアップロードのタイミングが毎週月曜日から毎日放送後に変更になったため、毎日走らせるのがいいかと思います）
 
-    00 11 * * *   /home/ikakunsan/bin/radio-gogaku-downloader.py -q1 -d /mnt/win/gogaku
+    00 11 * * *   /home/ikakunsan/bin/radio-gogaku-downloader.py -q1 -p1 -d /mnt/win/gogaku
 
 ### オプション
 
