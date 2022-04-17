@@ -383,9 +383,15 @@ if __name__ == "__main__":
                     "file_list"
                 ][0]["file_name"]
                 nendo = get_nendo(
-                    json_prog_this_week["main"]["dev"][:4]
-                    + json_prog_this_week["main"]["dev"][5:7]
-                    + json_prog_this_week["main"]["dev"][8:10]
+                    json_prog_this_week["main"]["detail_list"][i]["file_list"][0][
+                        "aa_vinfo4"
+                    ][:4]
+                    + json_prog_this_week["main"]["detail_list"][i]["file_list"][0][
+                        "aa_vinfo4"
+                    ][5:7]
+                    + json_prog_this_week["main"]["detail_list"][i]["file_list"][0][
+                        "aa_vinfo4"
+                    ][8:10]
                 )
                 log_message = (
                     "Processing:",
@@ -519,11 +525,12 @@ if __name__ == "__main__":
                             http_error = False
                             if retry > RETRY_MAX:
                                 s = str(path_output)
-                                s = "{0}(incomplete){1}".format(
-                                    s[:-4], s[-4:]
-                                )
+                                s = "{0}(incomplete){1}".format(s[:-4], s[-4:])
                                 path_output_incomp = Path(s).resolve()
-                                os.rename(path_output, path_output_incomp)
+                                try:
+                                    os.rename(path_output, path_output_incomp)
+                                except FileNotFoundError:
+                                    break
                             break
 
         log_message = ("Program finished",)
