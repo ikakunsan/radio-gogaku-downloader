@@ -522,7 +522,7 @@ if __name__ == "__main__":
 
                         retry += 1
                         if retry > RETRY_MAX or not http_error:
-                            http_error = False
+                            log_print("ERROR", ("Retry:", str(retry)),)
                             if retry > RETRY_MAX:
                                 s = str(path_output)
                                 s = "{0}(incomplete){1}".format(s[:-4], s[-4:])
@@ -532,6 +532,7 @@ if __name__ == "__main__":
                                 except FileNotFoundError:
                                     break
                             break
+                        http_error = False
 
         log_message = ("Program finished",)
         log_print("INFO", log_message)
