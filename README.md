@@ -30,7 +30,7 @@ Linux（含むWSL）。たぶんMacOSも可。
 #### 必要なPythonパッケージ (あらかじめpip3 installでインストールしておいてください)
 - requests
 - npyscreen
-- ffmeg-python
+- ffmpeg-python
 
 ## 使い方
 コマンドラインから実行。（Windows以外。Windowsでの使用法は注意事項参照）
