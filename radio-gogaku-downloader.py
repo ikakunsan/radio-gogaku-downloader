@@ -8,6 +8,7 @@
 #
 import sys
 import os
+import platform
 import time
 import datetime as dt
 import json
@@ -16,7 +17,6 @@ import argparse
 import requests
 import npyscreen
 import ffmpeg
-from distutils.util import strtobool
 from sys import exit
 
 # from logging import getLogger, StreamHandler, DEBUG
@@ -161,7 +161,6 @@ if __name__ == "__main__":
         "-y",
         "--year",
         default="1",
-        type=strtobool,
         help="Switch to add Year in output file name. "
         + "0:without year, 1:with year (Default is 1)",
     )
@@ -234,6 +233,22 @@ if __name__ == "__main__":
         )
         log_print("ERROR", log_message)
         exit(1)
+
+    # Get current OS
+    # (To identify Windows or not)
+    platform_os = platform.system() # is "Windows" if running on Windows
+
+    # Use ffmpeg in the current directory if it is present
+    if platform_os == "Windows":
+        ffmpeg_fname = "ffmpeg.exe"
+    else:
+        ffmpeg_fname = "ffmpeg"
+
+    local_ffmpeg = dir_current / ffmpeg_fname
+    if local_ffmpeg.exists():
+        ffmpeg_binary = str(local_ffmpeg)
+    else:
+        ffmpeg_binary = ffmpeg_fname
 
     # If courses-selected.json exists, put selected program list (dir numbers)
     # to prog_sel_num[]
@@ -442,6 +457,8 @@ if __name__ == "__main__":
                     exit(1)
 
                 if args.force or not path_output.exists():
+                    input_options = {
+                    }
                     output_options = {
                         "id3v2_version": "3",
                         "ab": mp3_bitrate,
@@ -455,10 +472,10 @@ if __name__ == "__main__":
                     while True:
                         try:
                             (
-                                ffmpeg.input(url_music_source)
+                                ffmpeg.input(url_music_source, **input_options)
                                 .output(str(path_output.resolve()), **output_options)
                                 .overwrite_output()
-                                .run()
+                                .run(cmd=ffmpeg_binary)
                             )
                             actual_file_size = os.path.getsize(path_output)
                             log_print(
@@ -480,6 +497,8 @@ if __name__ == "__main__":
                                     ("Actual Size:  ", str(int(actual_file_size))),
                                 )
                                 raise NetworkProtocolError
+                            else:
+                                break
 
                         except FileNotFoundError:
                             log_message = (
@@ -521,7 +540,7 @@ if __name__ == "__main__":
                             log_print("EXCEPTION", log_message)
 
                         retry += 1
-                        if retry > RETRY_MAX or not http_error:
+                        if retry > RETRY_MAX and not http_error:
                             log_print("ERROR", ("Retry:", str(retry)),)
                             if retry > RETRY_MAX:
                                 s = str(path_output)
