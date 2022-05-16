@@ -122,6 +122,27 @@ def log_print(loglevel, message):
         logger.error("[PARAM ERROR]", msg_str)
 
 
+# To check if ffmpeg supports "http_seekable" option. (= if it's v4.3 or above)
+def support_http_seekable() -> bool:
+    input_options = {
+        "http_seekable": "0",
+        "version": "1",
+    }
+    r = True
+    try:
+        (
+            ffmpeg.input("", **input_options)
+            .output("")
+            .run(cmd=ffmpeg_binary, capture_stdout=True, capture_stderr=True)
+        )
+    except ffmpeg._run.Error as e:
+        error_msg = e.stderr.decode("utf8")
+        keyword_err = "option not found"
+        if keyword_err in error_msg.lower():
+            r = False
+    return r
+
+
 if __name__ == "__main__":
     ################################
     path_prog_all = "courses-all.json"
@@ -236,7 +257,7 @@ if __name__ == "__main__":
 
     # Get current OS
     # (To identify Windows or not)
-    platform_os = platform.system() # is "Windows" if running on Windows
+    platform_os = platform.system()  # is "Windows" if running on Windows
 
     # Use ffmpeg in the current directory if it is present
     if platform_os == "Windows":
@@ -457,8 +478,13 @@ if __name__ == "__main__":
                     exit(1)
 
                 if args.force or not path_output.exists():
-                    input_options = {
-                    }
+                    input_options = {}
+                    if support_http_seekable():
+                        input_options.update(
+                            {
+                                "http_seekable": "0",
+                            }
+                        )
                     output_options = {
                         "id3v2_version": "3",
                         "ab": mp3_bitrate,
@@ -507,7 +533,7 @@ if __name__ == "__main__":
                             )
                             log_print("ERROR", log_message)
 
-                        except ffmpeg._run.Error:
+                        except ffmpeg._run.Error as e:
                             http_error = True
                             log_message = (
                                 "[ERROR]",
@@ -516,6 +542,7 @@ if __name__ == "__main__":
                                 onair_date,
                                 "will retry",
                                 str(retry),
+                                str(e),
                             )
                             log_print("ERROR", log_message)
 
@@ -541,7 +568,10 @@ if __name__ == "__main__":
 
                         retry += 1
                         if retry > RETRY_MAX and not http_error:
-                            log_print("ERROR", ("Retry:", str(retry)),)
+                            log_print(
+                                "ERROR",
+                                ("Retry:", str(retry)),
+                            )
                             if retry > RETRY_MAX:
                                 s = str(path_output)
                                 s = "{0}(incomplete){1}".format(s[:-4], s[-4:])
