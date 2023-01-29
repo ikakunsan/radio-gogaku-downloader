@@ -2,7 +2,7 @@
 #
 # NHK radio gogaku downloader
 #
-# 2021,2022 ikakunsan
+# 2021,2023 ikakunsan
 # https://github.com/ikakunsan/radio-gogaku-downloader
 #
 #
@@ -20,7 +20,7 @@ import ffmpeg
 from sys import exit
 
 # from logging import getLogger, StreamHandler, DEBUG
-import logging as lgg
+import logging.handlers
 
 FILE_SIZE_PER_SEC = {
     "64k": 64000,
@@ -31,12 +31,16 @@ RETRY_MAX = 5  # retry count in HTTP 404 error
 
 logging_filename = "radio-gogaku-downloader.log"
 logging_path = os.path.dirname(os.path.abspath(__file__))  # Current directory
-logger = lgg.getLogger(__name__)
-handler = lgg.FileHandler(f"{logging_path}/{logging_filename}", encoding="utf-8")
-# handler = lgg.StreamHandler()
-log_format = lgg.Formatter("%(asctime)s : %(levelname)s : %(message)s")
+logger = logging.getLogger(__name__)
+handler = logging.handlers.RotatingFileHandler(
+    f"{logging_path}/{logging_filename}",
+    encoding="utf-8",
+    maxBytes=100000,
+    backupCount=5,
+)
+log_format = logging.Formatter("%(asctime)s : %(levelname)s : %(message)s")
 handler.setFormatter(log_format)
-log_level = lgg.ERROR
+log_level = logging.ERROR
 handler.setLevel(log_level)
 logger.setLevel(log_level)
 logger.addHandler(handler)
@@ -202,7 +206,7 @@ if __name__ == "__main__":
 
     # Set log level to debug
     if args.debug:
-        log_level = lgg.DEBUG
+        log_level = logging.DEBUG
         handler.setLevel(log_level)
         logger.setLevel(log_level)
         logger.addHandler(handler)
