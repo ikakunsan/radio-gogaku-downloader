@@ -1,8 +1,6 @@
 {
-    "year": "2022年度前期",
-    "url1": "https://www.nhk.or.jp/radioondemand/json",
-    "url2": "bangumi_",
-    "url3": ".json",
+    "year": "2024年度前期",
+    "url_json": "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id={}&corner_site_id={}",
     "programs": [
         {"dir": "6806", "sub": "01", "title": "中学生の基礎英語 レベル1"},
         {"dir": "6807", "sub": "01", "title": "中学生の基礎英語 レベル2"},
