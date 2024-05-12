@@ -1,15 +1,9 @@
 
-Windowsでの使い方
+《Windowsでの使い方》
 
-- 日本語表示のできるWindows 10 64bit版が必要です。(32bit版では動きません)
+- 日本語表示のできるWindows 10/11 64bit版が必要です。(32bit版では動きません)
 - 実行ファイル単体で動作します。ライブラリファイルは不要です。
 - 実行ファイルと同じフォルダに、courses-selected.json が必要です。
-- Windows上では-sオプションでの表示に問題があります（日本語の文字の隣同士
-  が重なって表示されます。（Windows用のcursesライブラリが  日本語をサポー
-  トしていないため）
-  windowsディレクトリの下のcourses-all.jsonファイルでは、日本語文字の間
-  に空白を補うことでとりあえず回避しています。
-
 - ライセンスの関係で、ffmpegは同梱していません。インストールしていない場合
   は別途用意する必要があります。(4.2.7はしばらく入れておきます)
 
@@ -27,6 +21,20 @@ Windowsでの使い方
  3. ffmpeg.exeをパスの通ったところ、もしくは作業フォルダ
     (radio-gogaku-downloader.exeと同じフォルダ) に置きます。
 
+
+《GUI版》
+- radigo-gui.exeがプログラム本体です。
+- 動作にはradio-gogaku-downloader.exeが必要です。
+  courses-all.json, courses-selected.json に加えて radio-gogaku-downloader.exe
+  も同じフォルダに置いてください。
+
+
+《コマンドライン版》
+- Windows上では-sオプションでの表示に問題があります（日本語の文字の隣同士
+  が重なって表示されます。（Windows用のcursesライブラリが  日本語をサポー
+  トしていないため）
+  windowsディレクトリの下のcourses-all.jsonファイルでは、日本語文字の間
+  に空白を補うことでとりあえず回避しています。
 
 【courses-selected.json (ダウンロードしたい番組リスト)の準備】
 -sオプションを付けて起動すると、番組選択のメニューが表示されます。使用し

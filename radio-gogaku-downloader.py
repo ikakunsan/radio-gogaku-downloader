@@ -22,6 +22,8 @@ from sys import exit
 # from logging import getLogger, StreamHandler, DEBUG
 import logging.handlers
 
+VERSION = "2.7.1-2024-0512-01"
+FINISH_MESSAGE = "Finished"
 FILE_SIZE_PER_SEC = {
     "64k": 64000,
     "128k": 128000,
@@ -195,6 +197,9 @@ if __name__ == "__main__":
         "-f", "--force", action="store_true", help="Force overwrite existing files."
     )
     parser.add_argument("--debug", action="store_true", help="Debug mode")
+    parser.add_argument(
+        "-V", "--version", action="store_true", help="Show program version"
+    )
     args = parser.parse_args()
 
     # Try to read courses-selected.json file
@@ -205,6 +210,10 @@ if __name__ == "__main__":
         dir_current = Path(__file__).resolve().parent
     path_prog_all = dir_current / path_prog_all
     path_prog_sel = dir_current / path_prog_sel
+
+    if args.version:
+        print(VERSION)
+        exit(0)
 
     # Set log level to debug
     if args.debug:
@@ -389,6 +398,8 @@ if __name__ == "__main__":
                         onair_datetime[8:10] + "日放送分"
                     )
                     onair_date = onair_datetime[0:4] + "年" + onair_date_mmdd
+                    print(f"{prog_title} {onair_date}")
+                    print(f"{prog_title} {onair_date}", file=sys.stderr)
                     onair_start = dt.datetime.strptime(
                         onair_datetime[0:19], "%Y-%m-%dT%H:%M:%S"
                     )
@@ -573,5 +584,7 @@ if __name__ == "__main__":
                             break
                         http_error = False
 
-        log_message = ("Program finished",)
+        log_message = (FINISH_MESSAGE,)
         log_print("INFO", log_message)
+        print(FINISH_MESSAGE)
+        print(FINISH_MESSAGE, file=sys.stderr)

@@ -3,9 +3,19 @@
     "url_json": "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id={}&corner_site_id={}",
     "programs": [
         {"dir": "6806", "sub": "01", "title": "中学生の基礎英語 レベル1"},
-        {"dir": "6807", "sub": "01", "title": "中学生の基礎英語 レベル2"},
+        {"dir": "6807", "sub": "01", "title": "中学生の基礎英語 レベル２"},
         {"dir": "6808", "sub": "01", "title": "中高生の基礎英語 in English"},
         {"dir": "0916", "sub": "01", "title": "ラジオ英会話"},
         {"dir": "EEEE", "sub": "01", "title": "【最後の行】この行は消さない"}
-    ]
+    ],
+    "gui_settings": {
+        "save_dir": "",
+        "path_format": 1,
+        "quality": 1,
+        "sample_rate": 0,
+        "year": 1,
+        "force_overwrite": 0,
+        "theme_mode": 0,
+        "terminated": 0
+    }
 }
