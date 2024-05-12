@@ -15,15 +15,14 @@ Windows 10/11 (64bit)では、windowsの下の実行ファイルに変換した�
 
 ◆◆◆ (2024/5/12) GUIのフロントエンドを用意しました。（Ubuntu 22.04だと少しふるまいが変です。
 ウィンドウが開けば動作自体には影響ないようです。Flet由来の問題かと思われます）
-ライブラリの関係で実行ファイルが大きいのと起動に少々時間がかかります。
 
 ◆◆◆ ffmpeg 4.3以降でも動くように対策しました。(Thanks @ichinomoto for finding a workaround)
 使おうとしているffmpegのバージョンが 4.3以降であれば、 "http_seekable" を無効にするオプション (-http_seekable 0) を付加します。
 
 ## 実行環境
-Python 3.xの走る環境。 (3.10で動作確認)
+- Python 3.xの走る環境。 (3.10で動作確認)
 Linux（含むWSL）。たぶんMacOSも可。
-Windows10/11 64bit。 (Python等のインストールは不要。ffmpegのみ別途必要。詳細は注意事項参照）
+- Windows10/11 64bit。 (Python等のインストールは不要。ffmpegのみ別途必要。詳細は注意事項参照）
 
 #### その他必要なプログラム（Windows以外。あらかじめインストールしておいてください）
 - python3-pip
@@ -40,6 +39,7 @@ Windows10/11 64bit。 (Python等のインストールは不要。ffmpegのみ別
 radigo-gui.py を実行。radio-gogaku-downloader のフロントエンドなので、
 本体の radio-gogaku-downloader を同じディレクトリに置く必要があります。
 設定項目は、courses-selected.json に保管されます。
+(courses-selected.jsonは、コマンドライン版と互換です)
 
 ## 使い方 (radio-gogaku-downloader.py)
 コマンドラインから実行。（Windows以外。Windowsでの使用法は注意事項参照）
