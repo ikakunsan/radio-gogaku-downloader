@@ -18,6 +18,7 @@ import requests
 import npyscreen
 import ffmpeg
 from sys import exit
+from operator import itemgetter
 
 # from logging import getLogger, StreamHandler, DEBUG
 import logging.handlers
@@ -75,22 +76,17 @@ class SelectForm(npyscreen.ActionForm):
     def on_ok(self):
         self.parentApp.setNextForm(None)
         selects = self.multiselect.value
-        lall = []
+
         with open(path_prog_all, mode="r", encoding="utf-8") as fs:
-            for sline in fs:
-                lall.append(sline)
+            prog_all = json.load(fs)
+
+        selects_prog_dict = {k: v for k,v in prog_all.items() \
+                             if k != "programs"}
+        selects.append(-1)
+        selects_prog_dict['programs'] = \
+            itemgetter(*selects)(json_prog_all["programs"])
         with open(path_prog_sel, mode="w", encoding="utf-8") as fd:
-            for i in range(6):  # Just copy line 1 through line 6 in the source file
-                fd.write(lall[i])
-            for i in range(len(selects)):  # Copy lines of selected courses
-                json_prog_one = json_prog_all["programs"][selects[i]]
-                s = "        " + json.dumps(json_prog_one, ensure_ascii=False)
-                s += ",\n"
-                fd.write(s)
-            for i in range(3):
-                fd.write(
-                    lall[len(lall) - 3 + i]
-                )  # Copy last 3 lines in the source file
+            json.dump(selects_prog_dict, fd, indent=4, ensure_ascii=False)
 
     def on_cancel(self):
         self.parentApp.setNextForm(None)
