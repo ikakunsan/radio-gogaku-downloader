@@ -16,7 +16,7 @@ import time
 import subprocess
 
 ################################
-VERSION = "2024-0512"
+VERSION = "2024-1201-01"
 PATH_ALL = "courses-all.json"
 PATH_SEL = "courses-selected.json"
 SUB_PROC_NAME = "radio-gogaku-downloader"
@@ -79,6 +79,7 @@ def main(page: ft.Page):
     page.window_width = APP_WIDTH
     page.window_height = APP_HEIGHT
     page.window_resizable = False
+    page.update()
     downloadable = True  # for future use
     path_prog_all = Path(PATH_ALL)
     path_prog_sel = Path(PATH_SEL)
@@ -87,6 +88,7 @@ def main(page: ft.Page):
     json_prog_all = {}
     json_prog_sel = {}
 
+    print(f">>>>> PAGE: {page.width}, {page.height}")
     def open_json_not_found_dlg():
         page.dialog = dlg_json_not_found
         dlg_json_not_found.open = True
@@ -376,7 +378,9 @@ def main(page: ft.Page):
         return r
 
     def route_change(route):
-        # page.on_resize = print_size
+        page.window_width = APP_WIDTH
+        page.window_height = APP_HEIGHT
+        page.on_resize = print_size
         page.views.append(
             ft.View(
                 "/",

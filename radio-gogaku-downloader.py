@@ -12,6 +12,7 @@ import platform
 import time
 import datetime as dt
 import json
+import re
 from pathlib import Path
 import argparse
 import requests
@@ -22,7 +23,7 @@ from sys import exit
 # from logging import getLogger, StreamHandler, DEBUG
 import logging.handlers
 
-VERSION = "2.7.1-2024-0512-01"
+VERSION = "2.8-2024-1201-01"
 FINISH_MESSAGE = "Finished"
 FILE_SIZE_PER_SEC = {
     "64k": 64000,
@@ -383,11 +384,24 @@ if __name__ == "__main__":
                 log_print("ERROR", log_message)
                 exit(1)
 
-            json_prog_this_week = json.loads(file_prog_this_week.text)
+            # 制御コード(\r, \n)が入っていたら除去
+            text_org = file_prog_this_week.text
+            text_fmt = re.sub(r"\r|\n", "", text_org)
+            json_prog_this_week = json.loads(text_fmt)
 
-            for i in range(
-                len(json_prog_this_week["episodes"])
-            ):  # Process for each date
+            # 番組がないときには空のJSONでなく空の文字列が返ってくるようになった
+            try:
+                episode_n = len(json_prog_this_week["episodes"])
+            except:
+                log_message = (
+                    "[ERROR]",
+                    "This program does not exist",
+                    "'"+prog_sel[i]["title"]+"'",
+                )
+                log_print("ERROR", log_message)
+                break
+
+            for i in range(episode_n):  # Process for each date
                 try:
                     prog_title = json_prog_this_week["title"]
                     onair_datetime = json_prog_this_week["episodes"][i]["aa_contents_id"].split(';')[
@@ -403,8 +417,11 @@ if __name__ == "__main__":
                     onair_start = dt.datetime.strptime(
                         onair_datetime[0:19], "%Y-%m-%dT%H:%M:%S"
                     )
+                    # JSON内の終了時刻の秒の数字は無視する（間違って登録されていたときの対策）
+                    enddt = onair_datetime[26:45]
+                    enddt = enddt[:17] + "00"
                     onair_end = dt.datetime.strptime(
-                        onair_datetime[26:45], "%Y-%m-%dT%H:%M:%S"
+                        enddt, "%Y-%m-%dT%H:%M:%S"
                     )
                     onair_time = onair_end - onair_start
                     expected_file_size = (
@@ -568,12 +585,14 @@ if __name__ == "__main__":
                             log_print("EXCEPTION", log_message)
 
                         retry += 1
-                        if retry > RETRY_MAX and not http_error:
-                            log_print(
-                                "ERROR",
-                                ("Retry:", str(retry)),
-                            )
-                            if retry > RETRY_MAX:
+                        print(f"***** retry = {retry}")
+                        if retry > RETRY_MAX:
+                            if not http_error:
+                                log_print(
+                                    "ERROR",
+                                    ("Retry:", str(retry)),
+                                )
+                            else:
                                 s = str(path_output)
                                 s = "{0}(incomplete){1}".format(s[:-4], s[-4:])
                                 path_output_incomp = Path(s).resolve()

@@ -2,10 +2,10 @@
     "year": "2024年度前期",
     "url_json": "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id={}&corner_site_id={}",
     "programs": [
-        {"dir": "6806", "sub": "01", "title": "中学生の基礎英語 レベル1"},
-        {"dir": "6807", "sub": "01", "title": "中学生の基礎英語 レベル２"},
-        {"dir": "6808", "sub": "01", "title": "中高生の基礎英語 in English"},
-        {"dir": "0916", "sub": "01", "title": "ラジオ英会話"},
+        {"dir": "148W8XX226", "sub": "01", "title": "中学生の基礎英語 レベル1"},
+        {"dir": "83RW6PK3GG", "sub": "01", "title": "中学生の基礎英語 レベル２"},
+        {"dir": "B2J88K328M", "sub": "01", "title": "中高生の基礎英語 in English"},
+        {"dir": "PMMJ59J6N2", "sub": "01", "title": "ラジオ英会話"},
         {"dir": "EEEE", "sub": "01", "title": "【最後の行】この行は消さない"}
     ],
     "gui_settings": {
