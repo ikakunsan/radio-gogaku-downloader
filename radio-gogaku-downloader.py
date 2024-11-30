@@ -162,8 +162,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-s", "--select", action="store_true", help="Display a menu to select courses."
     )
-    parser.add_argument(
-        "-d", "--dir", help="Specify directory to store audio files.")
+    parser.add_argument("-d", "--dir", help="Specify directory to store audio files.")
     parser.add_argument(
         "-o",
         "--output",
@@ -177,8 +176,7 @@ if __name__ == "__main__":
         "--quality",
         default=1,
         type=int,
-        help="Sound quality. 0:basic (64kbps), " +
-        "1:high (128kbps), 2:best (256kbps)",
+        help="Sound quality. 0:basic (64kbps), " + "1:high (128kbps), 2:best (256kbps)",
     )
     parser.add_argument(
         "-p",
@@ -351,8 +349,7 @@ if __name__ == "__main__":
             prog_sel_title.append(prog_sel[i]["title"])
             prog_sel_dir.append(prog_sel[i]["dir"])
             prog_sel_sub.append(prog_sel[i]["sub"])
-            url_prog_this_week = (url_json.format(
-                prog_sel_dir[i], prog_sel_sub[i]))
+            url_prog_this_week = url_json.format(prog_sel_dir[i], prog_sel_sub[i])
 
             # Get json file of the program for this week
             try:
@@ -367,8 +364,7 @@ if __name__ == "__main__":
             if file_prog_this_week.status_code != 200:
                 log_message = (
                     "[ERROR]",
-                    "Cannot open program JSON fiie: {}".format(
-                        prog_sel_title[i]),
+                    "Cannot open program JSON fiie: {}".format(prog_sel_title[i]),
                 )
                 log_print("ERROR", log_message)
                 exit(1)
@@ -396,7 +392,7 @@ if __name__ == "__main__":
                 log_message = (
                     "[ERROR]",
                     "This program does not exist",
-                    "'"+prog_sel[i]["title"]+"'",
+                    "'" + prog_sel[i]["title"] + "'",
                 )
                 log_print("ERROR", log_message)
                 break
@@ -404,29 +400,27 @@ if __name__ == "__main__":
             for i in range(episode_n):  # Process for each date
                 try:
                     prog_title = json_prog_this_week["title"]
-                    onair_datetime = json_prog_this_week["episodes"][i]["aa_contents_id"].split(';')[
-                        4]
+                    onair_datetime = json_prog_this_week["episodes"][i][
+                        "aa_contents_id"
+                    ].split(";")[4]
 
                     onair_date_mmdd = (
-                        onair_datetime[5:7] + "月" +
-                        onair_datetime[8:10] + "日放送分"
+                        onair_datetime[5:7] + "月" + onair_datetime[8:10] + "日放送分"
                     )
                     onair_date = onair_datetime[0:4] + "年" + onair_date_mmdd
                     print(f"{prog_title} {onair_date}")
                     print(f"{prog_title} {onair_date}", file=sys.stderr)
-                    onair_start = dt.datetime.strptime(
-                        onair_datetime[0:19], "%Y-%m-%dT%H:%M:%S"
-                    )
-                    # JSON内の終了時刻の秒の数字は無視する（間違って登録されていたときの対策）
+                    
+                    # JSON内の開始・終了時刻の秒の数字は無視する（間違って登録されていたときの対策）
+                    startdt = onair_datetime[0:19]
+                    startdt = startdt[:17] + "00"
+                    onair_start = dt.datetime.strptime(startdt, "%Y-%m-%dT%H:%M:%S")
                     enddt = onair_datetime[26:45]
                     enddt = enddt[:17] + "00"
-                    onair_end = dt.datetime.strptime(
-                        enddt, "%Y-%m-%dT%H:%M:%S"
-                    )
+                    onair_end = dt.datetime.strptime(enddt, "%Y-%m-%dT%H:%M:%S")
                     onair_time = onair_end - onair_start
                     expected_file_size = (
-                        FILE_SIZE_PER_SEC[mp3_bitrate] *
-                        int(onair_time.seconds) / 8
+                        FILE_SIZE_PER_SEC[mp3_bitrate] * int(onair_time.seconds) / 8
                     )
                 except:
                     log_message = (
@@ -441,8 +435,11 @@ if __name__ == "__main__":
                     onair_date = onair_date_mmdd
 
                 url_music_source = json_prog_this_week["episodes"][i]["stream_url"]
-                nendo = get_nendo("{}{}{}".format(
-                    onair_datetime[:4], onair_datetime[5:7], onair_datetime[8:10]))
+                nendo = get_nendo(
+                    "{}{}{}".format(
+                        onair_datetime[:4], onair_datetime[5:7], onair_datetime[8:10]
+                    )
+                )
                 log_message = (
                     "Processing:",
                     nendo,
@@ -486,8 +483,7 @@ if __name__ == "__main__":
                 except:
                     log_message = (
                         "[ERROR]",
-                        "Cannot create target directory: {}".format(
-                            dir_output),
+                        "Cannot create target directory: {}".format(dir_output),
                     )
                     log_print("ERROR", log_message)
                     exit(1)
@@ -521,20 +517,17 @@ if __name__ == "__main__":
                             actual_file_size = os.path.getsize(path_output)
                             log_print(
                                 "DEBUG",
-                                ("Expected File Size:", str(
-                                    int(expected_file_size))),
+                                ("Expected File Size:", str(int(expected_file_size))),
                             )
                             log_print(
                                 "DEBUG",
-                                ("Actual File Size:  ", str(
-                                    int(actual_file_size))),
+                                ("Actual File Size:  ", str(int(actual_file_size))),
                             )
 
                             if actual_file_size < expected_file_size:
                                 log_print(
                                     "ERROR",
-                                    ("Expected Size:", str(
-                                        int(expected_file_size))),
+                                    ("Expected Size:", str(int(expected_file_size))),
                                 )
                                 log_print(
                                     "ERROR",
